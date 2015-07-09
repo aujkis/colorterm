@@ -1,5 +1,7 @@
 'use strict';
 
+var Colors = require('colors');
+
 var internals = {};
 
 
@@ -13,7 +15,9 @@ module.exports = internals.Colorterm = function() {
 
 }
 
-
+//
+//
+//
 internals.Colorterm.prototype.init = function() {
 
   var self = this;
@@ -33,6 +37,9 @@ internals.Colorterm.prototype.init = function() {
 
 }
 
+//
+//
+//
 internals.Colorterm.prototype.log = function (object) {
   if (typeof object === 'string' || object instanceof String) {
     var record = {
@@ -47,15 +54,46 @@ internals.Colorterm.prototype.log = function (object) {
   this._formatLog(object);
 }
 
+
+//
+//
+//
+internals.Colorterm.prototype._formatEvent = function (event) {
+  // var output = StringPadder.padLeft(level + ' |', 10);
+
+  switch(event) {
+    case 'log':
+      return Colors.bold.white.dim(event);
+      break;
+    case 'info':
+      return Colors.bold.cyan(event);
+      break;
+    case 'warn':
+      return Colors.bold.yellow(event);
+      break;
+    case 'error':
+      return Colors.bold.red(event);
+      break;
+    case 'dir':
+      return Colors.bold.magenta(event);
+      break;
+    default:
+      return Colors.white(event);
+  }
+}
+
+//
+//
+//
 internals.Colorterm.prototype._formatLog = function (object) {
   var string = '%event: %timestamp %data';
   var substitutions = {
-    '%event': object.event,
+    '%event': this._formatEvent(object.event),
     '%timestamp': object.timestamp,
     '%data': object.data
   };
 
-  string = string.replace(/%\w+/g, function(all) {
+  string = string.replace(/%\w+/g, function (all) {
     return substitutions[all] || all;
   });
 
