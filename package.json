@@ -1,0 +1,16 @@
+{
+  "name": "colorterm",
+  "version": "0.1.0",
+  "description": "Colorful overlay/extension for console.log",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cyanpunk/colorterm"
+  },
+  "author": "Austris Landmanis <austris@chevron.lv>",
+  "license": "MIT",
+  "dependencies": {}
+}
