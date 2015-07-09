@@ -34,30 +34,38 @@ internals.Colorterm.prototype.init = function() {
 }
 
 internals.Colorterm.prototype.log = function (object) {
-  if (typeof object == String) {
-    this._writeMessage(object);
+  if (typeof object === 'string' || object instanceof String) {
+    var record = {
+      event: 'log',
+      timestamp: new Date().getTime(),
+      data: object
+    };
+
+    object = record;
   }
-  else {
-    if (typeof object.data == String) {
-      this._writeLog(object);
-    }
-    else {
-      this._writeJson(object);
-    }
-  }
+
+  this._formatLog(object);
 }
 
-internals.Colorterm.prototype._writeMessage = function (object) {
-  process.stdout.write(object + '\n');
+internals.Colorterm.prototype._formatLog = function (object) {
+  var string = '%event: %timestamp %data';
+  var substitutions = {
+    '%event': object.event,
+    '%timestamp': object.timestamp,
+    '%data': object.data
+  };
+
+  string = string.replace(/%\w+/g, function(all) {
+    return substitutions[all] || all;
+  });
+
+  this._stdout(string);
 }
 
-internals.Colorterm.prototype._writeLog = function (object) {
-
+internals.Colorterm.prototype._stdout = function (output) {
+  process.stdout.write(output + '\n');
 }
 
-internals.Colorterm.prototype._writeJson = function (object) {
-
-}
 
 //
 // internals.Colorterm.prototype.log = function () {
