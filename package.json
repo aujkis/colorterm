@@ -13,6 +13,7 @@
   "author": "Austris Landmanis <austris@chevron.lv>",
   "license": "MIT",
   "dependencies": {
-    "colors": "^1.1.2"
+    "colors": "^1.1.2",
+    "moment": "^2.10.3"
   }
 }

@@ -1,6 +1,7 @@
 'use strict';
 
 var Colors = require('colors');
+var Moment = require('moment');
 
 var internals = {};
 
@@ -82,6 +83,14 @@ internals.Colorterm.prototype._formatEvent = function (event) {
   }
 }
 
+internals.Colorterm.prototype._formatTimestamp = function (timestamp) {
+  var moment = Moment.utc(timestamp);
+
+  // moment.local();
+
+  return Colors.italic.dim(moment.format('HH:mm:ss.SSS'));
+}
+
 //
 //
 //
@@ -89,7 +98,7 @@ internals.Colorterm.prototype._formatLog = function (object) {
   var string = '%event: %timestamp %data';
   var substitutions = {
     '%event': this._formatEvent(object.event),
-    '%timestamp': object.timestamp,
+    '%timestamp': this._formatTimestamp(object.timestamp),
     '%data': object.data
   };
 
