@@ -1,9 +1,9 @@
 'use strict';
 
-var String = require('string');
 var Colors = require('colors');
 var Moment = require('moment');
 
+var string = require('string');
 
 var internals = {};
 
@@ -44,66 +44,54 @@ internals.Colorterm.prototype.init = function() {
 //
 //
 internals.Colorterm.prototype.log = function (object) {
-  this._parseEvent('log', object);
+  this._writeEvent('log', object);
 }
 
 internals.Colorterm.prototype.info = function (object) {
-  this._parseEvent('info', object);
+  this._writeEvent('info', object);
 }
 
 internals.Colorterm.prototype.warn = function (object) {
-  this._parseEvent('warn', object);
+  this._writeEvent('warn', object);
 }
 
 internals.Colorterm.prototype.error = function (object) {
-  this._parseEvent('error', object);
+  this._writeEvent('error', object);
 }
 
 internals.Colorterm.prototype.dir = function (object) {
-  this._parseEvent('dir', object);
+  this._writeEvent('dir', object);
 }
 
 internals.Colorterm.prototype.trace = function (object) {
-  this._parseEvent('trace', object);
+  this._writeEvent('trace', object);
 }
 
 
 internals.Colorterm.prototype.response = function (object) {
-  this._parseEvent('response', object);
+  this._writeEvent('response', object);
 }
 
 
-internals.Colorterm.prototype._parseEvent = function(level, object) {
-  var type = level + '#' + typeof object;
+internals.Colorterm.prototype._isSerializable = function (input, primitives) {
 
-  if (typeof object === 'string' || object instanceof String) {
-    object = {
-      event: level,
-      timestamp: new Date().getTime(),
-      data: object
-    };
+}
 
-    this._writeString(object);
-  }
-  else if (typeof object === 'object' || object instanceof Object) {
-    object = {
-      event: level,
-      timestamp: new Date().getTime(),
-      data: Colors.white('Write object to string parser for console.' + level + '(object)')
-    };
+internals.Colorterm.prototype._parseObject = function (level, object) {
+  // console.log(this._formatLevel(level, true)+' This is object log');
+  var self = this;
+  var lines = [];
 
-    this._writeString(object);
-    this._writeObject(level, object);
-  }
-  else {
-    object = {
-      event: 'error',
-      timestamp: new Date().getTime(),
-      data: Colors.white('Missing ' + Colors.bold(type) +' event handler')
-    }
+  lines.push(this._formatLevel(level, true) + Colors.magenta.dim(' [object placeholder]'));
 
-    this._writeString(object);
-  }
+  // lines.push(this._formatLevel(level, true)+' This is object line')
+  // lines.push(this._formatLevel(level, true)+' This is object line')
+  // lines.push(this._formatLevel(level, true)+' This is object line')
+
+  return lines.join('\n');
+  // if (lines.length > 0) {
+  //   this._stdout(lines.join('\n'));
+  // }
 }
 
 //
@@ -111,10 +99,10 @@ internals.Colorterm.prototype._parseEvent = function(level, object) {
 //
 internals.Colorterm.prototype._formatLevel = function (event, hidden) {
   if (hidden == true) {
-    var output = String('|').padLeft(10, ' ');
+    var output = string('|').padLeft(10, ' ');
   }
   else {
-    var output = String(event + ' |').padLeft(10, ' ');
+    var output = string(event + ' |').padLeft(10, ' ');
   }
 
   switch(event) {
@@ -152,26 +140,47 @@ internals.Colorterm.prototype._formatTimestamp = function (timestamp) {
   return Colors.italic.dim(moment.format('HH:mm:ss.SSS'));
 }
 
+internals.Colorterm.prototype._writeEvent = function(level, object) {
+  var type = level + '#' + typeof object;
+  var line = {
+    event: level,
+    timestamp: new Date().getTime(),
+    data: object
+  }
+
+  if (typeof object === 'string' || object instanceof String) {
+    this._writeString(line);
+  }
+  else if (typeof object === 'object' || object instanceof Object) {
+    line['data'] = Colors.white('Write object to string parser for console.' + level + '(object)');
+
+    this._writeString(line);
+    this._stdout(this._parseObject(level, object));
+  }
+  else {
+    line['event'] = 'error';
+    line['data'] = Colors.white('Missing ' + Colors.bold(type) +' event handler');
+
+    this._writeString(line);
+  }
+}
+
 //
 //
 //
 internals.Colorterm.prototype._writeString = function (object) {
-  var string = '%level %timestamp %data';
+  var line = '%level %timestamp %data';
   var substitutions = {
     '%level': this._formatLevel(object.event),
     '%timestamp': this._formatTimestamp(object.timestamp),
     '%data': object.data
   };
 
-  string = string.replace(/%\w+/g, function (all) {
+  line = line.replace(/%\w+/g, function (all) {
     return substitutions[all] || all;
   });
 
-  this._stdout(string);
-}
-
-internals.Colorterm.prototype._writeObject = function (level, object) {
-  console.log(this._formatLevel(level, true)+' This is object log');
+  this._stdout(line);
 }
 
 internals.Colorterm.prototype._stdout = function (output) {
