@@ -1,7 +1,9 @@
 'use strict';
 
+var String = require('string');
 var Colors = require('colors');
 var Moment = require('moment');
+
 
 var internals = {};
 
@@ -42,44 +44,90 @@ internals.Colorterm.prototype.init = function() {
 //
 //
 internals.Colorterm.prototype.log = function (object) {
+  this._parseEvent('log', object);
+}
+
+internals.Colorterm.prototype.info = function (object) {
+  this._parseEvent('info', object);
+}
+
+internals.Colorterm.prototype.warn = function (object) {
+  this._parseEvent('warn', object);
+}
+
+internals.Colorterm.prototype.error = function (object) {
+  this._parseEvent('error', object);
+}
+
+internals.Colorterm.prototype.dir = function (object) {
+  this._parseEvent('dir', object);
+}
+
+internals.Colorterm.prototype.trace = function (object) {
+  this._parseEvent('trace', object);
+}
+
+
+internals.Colorterm.prototype._parseEvent = function(level, object) {
+  var type = level + '#' + typeof object;
+
   if (typeof object === 'string' || object instanceof String) {
-    var record = {
-      event: 'log',
+    object = {
+      event: level,
       timestamp: new Date().getTime(),
       data: object
     };
 
-    object = record;
+    this._writeString(object);
   }
+  else if (typeof object === 'object' || object instanceof Object) {
+    object = {
+      event: level,
+      timestamp: new Date().getTime(),
+      data: Colors.white('Write object to string parser for console.' + level + '(object)')
+    };
 
-  this._formatLog(object);
+    this._writeString(object);
+    this._writeObject(level, object);
+  }
+  else {
+    object = {
+      event: 'error',
+      timestamp: new Date().getTime(),
+      data: Colors.white('Missing ' + Colors.bold(type) +' event handler')
+    }
+
+    this._writeString(object);
+  }
 }
-
 
 //
 //
 //
 internals.Colorterm.prototype._formatEvent = function (event) {
-  // var output = StringPadder.padLeft(level + ' |', 10);
+  var output = String(event + ' |').padLeft(10, ' ');
 
   switch(event) {
     case 'log':
-      return Colors.bold.white.dim(event);
+      return Colors.bold.white.dim(output);
       break;
     case 'info':
-      return Colors.bold.cyan(event);
+      return Colors.bold.cyan(output);
       break;
     case 'warn':
-      return Colors.bold.yellow(event);
+      return Colors.bold.yellow(output);
       break;
     case 'error':
-      return Colors.bold.red(event);
+      return Colors.bold.red(output);
       break;
     case 'dir':
-      return Colors.bold.magenta(event);
+      return Colors.bold.magenta(output);
+      break;
+    case 'trace':
+      return Colors.bold(output);
       break;
     default:
-      return Colors.white(event);
+      return Colors.white(output);
   }
 }
 
@@ -94,8 +142,8 @@ internals.Colorterm.prototype._formatTimestamp = function (timestamp) {
 //
 //
 //
-internals.Colorterm.prototype._formatLog = function (object) {
-  var string = '%event: %timestamp %data';
+internals.Colorterm.prototype._writeString = function (object) {
+  var string = '%event %timestamp %data';
   var substitutions = {
     '%event': this._formatEvent(object.event),
     '%timestamp': this._formatTimestamp(object.timestamp),
@@ -107,6 +155,10 @@ internals.Colorterm.prototype._formatLog = function (object) {
   });
 
   this._stdout(string);
+}
+
+internals.Colorterm.prototype._writeObject = function (event, object) {
+  console.log(this._formatEvent(event)+' This is object log');
 }
 
 internals.Colorterm.prototype._stdout = function (output) {
