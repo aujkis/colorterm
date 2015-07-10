@@ -109,8 +109,13 @@ internals.Colorterm.prototype._parseEvent = function(level, object) {
 //
 //
 //
-internals.Colorterm.prototype._formatEvent = function (event) {
-  var output = String(event + ' |').padLeft(10, ' ');
+internals.Colorterm.prototype._formatLevel = function (event, hidden) {
+  if (hidden == true) {
+    var output = String('|').padLeft(10, ' ');
+  }
+  else {
+    var output = String(event + ' |').padLeft(10, ' ');
+  }
 
   switch(event) {
     case 'log':
@@ -151,9 +156,9 @@ internals.Colorterm.prototype._formatTimestamp = function (timestamp) {
 //
 //
 internals.Colorterm.prototype._writeString = function (object) {
-  var string = '%event %timestamp %data';
+  var string = '%level %timestamp %data';
   var substitutions = {
-    '%event': this._formatEvent(object.event),
+    '%level': this._formatLevel(object.event),
     '%timestamp': this._formatTimestamp(object.timestamp),
     '%data': object.data
   };
@@ -165,8 +170,8 @@ internals.Colorterm.prototype._writeString = function (object) {
   this._stdout(string);
 }
 
-internals.Colorterm.prototype._writeObject = function (event, object) {
-  console.log(this._formatEvent(event)+' This is object log');
+internals.Colorterm.prototype._writeObject = function (level, object) {
+  console.log(this._formatLevel(level, true)+' This is object log');
 }
 
 internals.Colorterm.prototype._stdout = function (output) {
