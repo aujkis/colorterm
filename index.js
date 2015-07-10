@@ -68,6 +68,11 @@ internals.Colorterm.prototype.trace = function (object) {
 }
 
 
+internals.Colorterm.prototype.response = function (object) {
+  this._parseEvent('response', object);
+}
+
+
 internals.Colorterm.prototype._parseEvent = function(level, object) {
   var type = level + '#' + typeof object;
 
@@ -125,6 +130,9 @@ internals.Colorterm.prototype._formatEvent = function (event) {
       break;
     case 'trace':
       return Colors.bold(output);
+      break;
+    case 'response':
+      return Colors.bold.green(output);
       break;
     default:
       return Colors.white(output);
