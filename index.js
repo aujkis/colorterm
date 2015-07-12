@@ -114,7 +114,7 @@ internals.Colorterm.prototype._parseObject = function (level, object, indentatio
   //   lines.push(this._indentRows(object, indentation));
   //   lines.push(new Array(indentation + 1).join(' ') + '"""');
   // }
-  else if (Array.isArray(object)) {
+  else if (typeof object === 'array' || object instanceof Array) {
     // If the array is empty, render the `emptyArrayMsg`
     if (object.length === 0) {
       lines.push(self._formatLevel(level, true) + ' ' + new Array(indentation + 1).join(' ') + self._colorLevel(level, '- ', true) + Colors.dim('empty'));
