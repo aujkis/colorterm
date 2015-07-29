@@ -8,11 +8,13 @@ var string = require('string');
 var internals = {};
 
 
-module.exports = internals.Colorterm = function() {
+module.exports = internals.Colorterm = function(prefix) {
 
   if (!(this instanceof internals.Colorterm)) {
     return new internals.Colorterm();
   }
+
+  this._prefix = prefix;
 
   return this.init();
 
@@ -240,6 +242,10 @@ internals.Colorterm.prototype._writeEvent = function(level, object) {
     data: object
   }
 
+  if (this._prefix) {
+    line['prefix'] = this._prefix;
+  }
+
   if (typeof object === 'string' || object instanceof String) {
     this._writeString(line);
   }
@@ -273,6 +279,10 @@ internals.Colorterm.prototype._writeString = function (object) {
 
   if (object.event) {
     line = this._formatLevel(object.event);
+  }
+
+  if (object.prefix) {
+    line = line + ' ('+ this._prefix + ')';
   }
 
   if (object.timestamp) {
